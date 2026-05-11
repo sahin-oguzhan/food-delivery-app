@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,9 @@ public class Order {
 
     @Column(nullable = false)
     private Double totalPrice;
+
+    @Column(name = "order_date")
+    private LocalDateTime orderDate = LocalDateTime.now();
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus = OrderStatus.PENDING;

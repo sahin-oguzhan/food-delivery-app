@@ -13,13 +13,12 @@ import java.util.Objects;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "role")
+@Table(name = "roles")
 public class Role implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String authority;
 
 

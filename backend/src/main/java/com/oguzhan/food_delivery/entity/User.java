@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,9 +46,9 @@ public class User implements UserDetails {
     @NotBlank
     private String password;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> authorities = new HashSet<>();
+    private Set<Role> roles = new HashSet<>();
 
     @Column(name = "registration_date")
     private LocalDateTime registrationDate = LocalDateTime.now();
@@ -57,18 +58,9 @@ public class User implements UserDetails {
 
 
     @Override
+    @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    @Override
-    public @Nullable String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
+        return roles;
     }
 
     @Override
@@ -90,4 +82,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
