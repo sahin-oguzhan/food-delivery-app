@@ -43,7 +43,7 @@ public class AuthenticationService {
         }
 
         String encodedPassword = passwordEncoder.encode(registerRequestDto.password());
-        Role userRole = roleRepository.findByAuthority("USER");
+        Role userRole = roleRepository.findByAuthority("CUSTOMER").orElseThrow();
         Set<Role> roles = new HashSet<>();
         roles.add(userRole);
 
