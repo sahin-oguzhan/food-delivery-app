@@ -1,15 +1,14 @@
 package com.oguzhan.food_delivery.mapper;
 
-import com.oguzhan.food_delivery.dto.restaurant.RestaurantRequestDto;
-import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponseDto;
+import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponse;
 import com.oguzhan.food_delivery.entity.Restaurant;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RestaurantMapper {
 
-    public RestaurantResponseDto toResponse(Restaurant restaurant) {
-        return new RestaurantResponseDto(
+    public RestaurantResponse toResponse(Restaurant restaurant) {
+        return new RestaurantResponse(
                 restaurant.getId(),
                 restaurant.getName(),
                 restaurant.getDescription(),
