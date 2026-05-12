@@ -2,9 +2,12 @@ package com.oguzhan.food_delivery.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,8 +27,8 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    @NotBlank
-    private Double price;
+    @NotNull
+    private BigDecimal price;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -36,4 +39,8 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 }
