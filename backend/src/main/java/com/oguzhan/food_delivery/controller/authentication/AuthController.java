@@ -1,4 +1,4 @@
-package com.oguzhan.food_delivery.controller;
+package com.oguzhan.food_delivery.controller.authentication;
 
 import com.oguzhan.food_delivery.dto.user.AuthResponseDto;
 import com.oguzhan.food_delivery.dto.user.LoginRequestDto;
@@ -6,7 +6,6 @@ import com.oguzhan.food_delivery.dto.user.RegisterRequestDto;
 import com.oguzhan.food_delivery.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

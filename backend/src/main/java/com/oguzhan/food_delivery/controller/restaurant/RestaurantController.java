@@ -1,4 +1,4 @@
-package com.oguzhan.food_delivery.controller;
+package com.oguzhan.food_delivery.controller.restaurant;
 
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantRequest;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponse;

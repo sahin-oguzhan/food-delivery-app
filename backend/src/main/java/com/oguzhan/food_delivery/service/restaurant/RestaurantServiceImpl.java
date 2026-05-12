@@ -5,7 +5,7 @@ import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponse;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantUpdateRequest;
 import com.oguzhan.food_delivery.entity.Restaurant;
 import com.oguzhan.food_delivery.entity.User;
-import com.oguzhan.food_delivery.mapper.RestaurantMapper;
+import com.oguzhan.food_delivery.mapper.restaurant.RestaurantMapper;
 import com.oguzhan.food_delivery.repository.RestaurantRepository;
 import com.oguzhan.food_delivery.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
