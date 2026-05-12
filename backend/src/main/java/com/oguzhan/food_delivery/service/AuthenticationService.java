@@ -43,7 +43,9 @@ public class AuthenticationService {
         }
 
         String encodedPassword = passwordEncoder.encode(registerRequestDto.password());
-        Role userRole = roleRepository.findByAuthority("CUSTOMER").orElseThrow();
+        String roleName = registerRequestDto.isOwner() ? "ROLE_OWNER" : "ROLE_CUSTOMER";
+        Role userRole = roleRepository.findByAuthority(roleName)
+                .orElseThrow(() -> new RuntimeException("Veritabanında " + roleName + " rolü bulunamadı!"));
         Set<Role> roles = new HashSet<>();
         roles.add(userRole);
 
