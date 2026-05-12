@@ -1,8 +1,8 @@
 package com.oguzhan.food_delivery.service.restaurant;
 
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantRequestDto;
-import com.oguzhan.food_delivery.entity.Restaurant;
+import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponseDto;
 
 public interface RestaurantService {
-    public Restaurant createRestaurant(RestaurantRequestDto restaurantRequestDto);
+    public RestaurantResponseDto createRestaurant(RestaurantRequestDto restaurantRequestDto);
 }

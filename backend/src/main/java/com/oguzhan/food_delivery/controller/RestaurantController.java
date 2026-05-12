@@ -1,6 +1,7 @@
 package com.oguzhan.food_delivery.controller;
 
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantRequestDto;
+import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponseDto;
 import com.oguzhan.food_delivery.entity.Restaurant;
 import com.oguzhan.food_delivery.service.restaurant.RestaurantService;
 import jakarta.validation.Valid;
@@ -20,8 +21,8 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
 
     @PostMapping
-    public ResponseEntity<Restaurant> createRestaurant(@Valid @RequestBody RestaurantRequestDto restaurantRequestDto) {
-        Restaurant createdRestaurant = restaurantService.createRestaurant(restaurantRequestDto);
+    public ResponseEntity<RestaurantResponseDto> createRestaurant(@Valid @RequestBody RestaurantRequestDto restaurantRequestDto) {
+        RestaurantResponseDto createdRestaurant = restaurantService.createRestaurant(restaurantRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRestaurant);
     }
 }
