@@ -3,6 +3,7 @@ package com.oguzhan.food_delivery.service.product;
 import com.oguzhan.food_delivery.dto.category.CategoryResponse;
 import com.oguzhan.food_delivery.dto.product.ProductRequest;
 import com.oguzhan.food_delivery.dto.product.ProductResponse;
+import com.oguzhan.food_delivery.dto.product.ProductUpdateRequest;
 import com.oguzhan.food_delivery.entity.Category;
 import com.oguzhan.food_delivery.entity.Product;
 import com.oguzhan.food_delivery.entity.Restaurant;
@@ -14,8 +15,8 @@ import com.oguzhan.food_delivery.repository.RestaurantRepository;
 import com.oguzhan.food_delivery.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -65,5 +66,47 @@ public class ProductServiceImpl implements ProductService{
 
         Product savedProduct = productRepository.save(product);
         return productMapper.toResponse(savedProduct);
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse updateProduct(Long productId, ProductUpdateRequest productUpdateRequest) {
+        Restaurant restaurant = getAuthenticatedUserRestaurant();
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Ürün bulunamadı!"));
+
+        if (!product.getRestaurant().getId().equals(restaurant.getId())) {
+            throw new RuntimeException("Bu ürünü güncelleme yetkiniz yok!");
+        }
+
+        Category category = categoryRepository.findById(productUpdateRequest.categoryId())
+                .orElseThrow(() -> new RuntimeException("Kategori bulunamadı!"));
+        if (!category.getRestaurant().getId().equals(restaurant.getId())) {
+            throw new RuntimeException("Geçersiz kategori seçimi!");
+        }
+
+        product.setName(productUpdateRequest.name());
+        product.setDescription(productUpdateRequest.description());
+        product.setPrice(productUpdateRequest.price());
+        product.setImageUrl(productUpdateRequest.imageUrl());
+        product.setAvailable(productUpdateRequest.isAvailable());
+        product.setCategory(category);
+
+        return productMapper.toResponse(productRepository.save(product));
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Restaurant restaurant = getAuthenticatedUserRestaurant();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Ürün bulunamadı!"));
+
+        if (!product.getRestaurant().getId().equals(restaurant.getId())) {
+            throw new RuntimeException("Bu ürünü silme yetkiniz yok!");
+        }
+
+        productRepository.delete(product);
     }
 }

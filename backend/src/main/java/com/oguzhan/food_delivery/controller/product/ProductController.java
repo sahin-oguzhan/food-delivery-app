@@ -2,6 +2,7 @@ package com.oguzhan.food_delivery.controller.product;
 
 import com.oguzhan.food_delivery.dto.product.ProductRequest;
 import com.oguzhan.food_delivery.dto.product.ProductResponse;
+import com.oguzhan.food_delivery.dto.product.ProductUpdateRequest;
 import com.oguzhan.food_delivery.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,18 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest productRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(productRequest));
+    }
+
+    @PutMapping("/{productId}")
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable Long productId,
+            @Valid @RequestBody ProductUpdateRequest productUpdateRequest) {
+        return ResponseEntity.ok(productService.updateProduct(productId, productUpdateRequest));
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
     }
 }

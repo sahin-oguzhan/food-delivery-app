@@ -3,6 +3,7 @@ package com.oguzhan.food_delivery.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class Product {
 
     @Column(nullable = false)
     @NotNull
+    @Positive
     private BigDecimal price;
 
     @Column(name = "image_url")
