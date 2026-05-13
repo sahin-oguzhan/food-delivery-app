@@ -1,5 +1,7 @@
-package com.oguzhan.food_delivery.entity;
+package com.oguzhan.food_delivery.entity.order;
 
+import com.oguzhan.food_delivery.entity.Restaurant;
+import com.oguzhan.food_delivery.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

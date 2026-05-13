@@ -1,4 +1,4 @@
-package com.oguzhan.food_delivery.entity;
+package com.oguzhan.food_delivery.entity.order;
 
 public enum OrderStatus {
     PENDING,

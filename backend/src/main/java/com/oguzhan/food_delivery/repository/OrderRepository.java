@@ -1,6 +1,6 @@
 package com.oguzhan.food_delivery.repository;
 
-import com.oguzhan.food_delivery.entity.Order;
+import com.oguzhan.food_delivery.entity.order.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
