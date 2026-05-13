@@ -29,4 +29,9 @@ public class Cart {
     private List<CartItem> cartItems = new ArrayList<>();
 
     private BigDecimal totalPrice = BigDecimal.ZERO;
+
+    public void addItem(CartItem cartItem) {
+        this.cartItems.add(cartItem);
+        cartItem.setCart(this);
+    }
 }

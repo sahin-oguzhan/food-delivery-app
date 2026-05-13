@@ -7,5 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 public interface CartService {
+    CartResponse getCart();
     CartResponse addToCart(Long productId, Integer quantity);
+    CartResponse removeItemFromCart(Long cartItemId);
 }

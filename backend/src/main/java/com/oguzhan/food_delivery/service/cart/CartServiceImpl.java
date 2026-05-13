@@ -32,6 +32,16 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public CartResponse getCart() {
+        User user = getAuthenticatedUser();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseGet(() -> createNewCart(user));
+
+        return cartMapper.toCartResponse(cart);
+    }
+
+    @Override
     @Transactional
     public CartResponse addToCart(Long productId, Integer quantity) {
         User user = getAuthenticatedUser();
@@ -55,11 +65,29 @@ public class CartServiceImpl implements CartService {
             newItem.setProduct(product);
             newItem.setQuantity(quantity);
             newItem.setSubTotal(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
-            cart.getCartItems().add(newItem);
+            cart.addItem(newItem);
         }
         updateCartTotal(cart);
         cartRepository.save(cart);
         return cartMapper.toCartResponse(cart);
+    }
+
+    @Override
+    @Transactional
+    public CartResponse removeItemFromCart(Long cartItemId) {
+        User user = getAuthenticatedUser();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Sepet bulunamadı!"));
+
+        CartItem itemToRemove = cart.getCartItems().stream()
+                .filter(item -> item.getId().equals(cartItemId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Sepette böyle bir ürün bulunamadı!"));
+
+        cart.getCartItems().remove(itemToRemove);
+        updateCartTotal(cart);
+
+        return cartMapper.toCartResponse(cartRepository.save(cart));
     }
 
     private Cart createNewCart(User user) {
