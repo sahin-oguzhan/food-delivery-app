@@ -75,4 +75,28 @@ public class OrderServiceImpl implements OrderService{
                 .toList();
     }
 
+    @Override
+    public List<OrderResponse> getRestaurantOrders() {
+        User owner = currentUserService.getCurrentUser();
+        List<Order> orders = orderRepository.findByRestaurantOwnerId(owner.getId());
+        return orders.stream()
+                .map(orderMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus orderStatus) {
+        User owner = currentUserService.getCurrentUser();
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Sipariş bulunamadı!"));
+
+        if (!order.getRestaurant().getOwner().getId().equals(owner.getId())) {
+            throw new RuntimeException("Bu siparişin durumunu değiştirme yetkiniz yok!");
+        }
+
+        order.setOrderStatus(orderStatus);
+        return orderMapper.toResponse(orderRepository.save(order));
+    }
+
 }
