@@ -3,7 +3,7 @@ package com.oguzhan.food_delivery.entity.order;
 public enum OrderStatus {
     PENDING,
     PREPARING,
-    SHIPPED,
+    ON_THE_WAY,
     DELIVERED,
     CANCELED
 

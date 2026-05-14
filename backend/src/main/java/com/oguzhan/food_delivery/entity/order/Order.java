@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +32,19 @@ public class Order {
     private Restaurant restaurant;
 
     @Column(nullable = false)
-    private Double totalPrice;
+    private BigDecimal totalAmount;
 
     @Column(name = "order_date")
     private LocalDateTime orderDate = LocalDateTime.now();
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus = OrderStatus.PENDING;
+    private OrderStatus orderStatus;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
+
+    public void addOrderItem(OrderItem orderItem) {
+        this.items.add(orderItem);
+        orderItem.setOrder(this);
+    }
 }

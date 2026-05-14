@@ -1,5 +1,7 @@
 package com.oguzhan.food_delivery.dto.user;
 
-public record LoginRequestDto(String email,
-                              String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record LoginRequestDto(@NotBlank(message = "Eposta boş bırakılamaz!") String email,
+                              @NotBlank(message = "Şifre boş bırakılamaz!") String password) {
 }

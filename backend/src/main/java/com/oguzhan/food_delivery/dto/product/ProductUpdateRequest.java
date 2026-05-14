@@ -6,10 +6,10 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record ProductUpdateRequest(@NotBlank String name,
+public record ProductUpdateRequest(@NotBlank(message = "Ürün ismi boş bırakılamaz!") String name,
                                    String description,
-                                   @NotNull @Positive BigDecimal price,
+                                   @NotNull(message = "Ürün fiyatı boş bırakılamaz!") @Positive BigDecimal price,
                                    String imageUrl,
-                                   @NotNull Boolean isAvailable,
-                                   @NotNull Long categoryId) {
+                                   @NotNull(message = "Ürünün mevcut stok durumu boş bırakılamaz! ") Boolean isAvailable,
+                                   @NotNull(message = "Kategori ID boş bırakılamaz!") Long categoryId) {
 }

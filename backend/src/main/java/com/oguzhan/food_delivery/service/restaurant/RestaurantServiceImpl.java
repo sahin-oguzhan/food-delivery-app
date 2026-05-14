@@ -16,6 +16,7 @@ import com.oguzhan.food_delivery.repository.CategoryRepository;
 import com.oguzhan.food_delivery.repository.ProductRepository;
 import com.oguzhan.food_delivery.repository.RestaurantRepository;
 import com.oguzhan.food_delivery.repository.UserRepository;
+import com.oguzhan.food_delivery.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,19 +32,14 @@ public class RestaurantServiceImpl implements RestaurantService{
 
     private final RestaurantRepository restaurantRepository;
     private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
     private final RestaurantMapper restaurantMapper;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
 
     @Override
     public RestaurantResponse getRestaurant() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
-
-        Restaurant restaurant = restaurantRepository.findByOwnerId(currentUser.getId())
-                .orElseThrow(() -> new RuntimeException("Henüz bir restoranınız bulunmamaktadır."));
-
+        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
         return restaurantMapper.toResponse(restaurant);
     }
 
@@ -107,12 +103,7 @@ public class RestaurantServiceImpl implements RestaurantService{
     @Override
     @Transactional
     public RestaurantResponse updateRestaurant(RestaurantUpdateRequest restaurantUpdateRequest) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı."));
-
-        Restaurant restaurant = restaurantRepository.findByOwnerId(currentUser.getId())
-                .orElseThrow(() -> new RuntimeException("Güncellenecek bir restoran bulunamadı!"));
+        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
 
         restaurant.setName(restaurantUpdateRequest.name());
         restaurant.setAddress(restaurantUpdateRequest.address());

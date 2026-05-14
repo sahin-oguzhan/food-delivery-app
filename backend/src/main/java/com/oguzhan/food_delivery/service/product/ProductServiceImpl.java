@@ -13,6 +13,7 @@ import com.oguzhan.food_delivery.repository.CategoryRepository;
 import com.oguzhan.food_delivery.repository.ProductRepository;
 import com.oguzhan.food_delivery.repository.RestaurantRepository;
 import com.oguzhan.food_delivery.repository.UserRepository;
+import com.oguzhan.food_delivery.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,30 +25,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
     private final RestaurantRepository restaurantRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
 
-    private Restaurant getAuthenticatedUserRestaurant() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı."));
 
-        return restaurantRepository.findByOwnerId(currentUser.getId())
-                .orElseThrow(() -> new RuntimeException("Restoran bulunamadı!"));
-    }
 
     @Override
     public List<ProductResponse> findAllProducts() {
-        Restaurant restaurant = getAuthenticatedUserRestaurant();
+        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
         return productRepository.findByRestaurantId(restaurant.getId());
 
     }
 
     @Override
     public ProductResponse createProduct(ProductRequest productRequest) {
-        Restaurant restaurant = getAuthenticatedUserRestaurant();
+        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
         Category category = categoryRepository.findById(productRequest.categoryId())
                 .orElseThrow(() -> new RuntimeException("Kategori bulunamadı."));
 
@@ -71,7 +65,7 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional
     public ProductResponse updateProduct(Long productId, ProductUpdateRequest productUpdateRequest) {
-        Restaurant restaurant = getAuthenticatedUserRestaurant();
+        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Ürün bulunamadı!"));
@@ -99,7 +93,7 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional
     public void deleteProduct(Long productId) {
-        Restaurant restaurant = getAuthenticatedUserRestaurant();
+        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Ürün bulunamadı!"));
 

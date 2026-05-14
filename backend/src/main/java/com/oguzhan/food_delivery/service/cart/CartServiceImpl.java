@@ -9,6 +9,7 @@ import com.oguzhan.food_delivery.mapper.cart.CartMapper;
 import com.oguzhan.food_delivery.repository.ProductRepository;
 import com.oguzhan.food_delivery.repository.UserRepository;
 import com.oguzhan.food_delivery.repository.cart.CartRepository;
+import com.oguzhan.food_delivery.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,19 +23,14 @@ import java.util.Optional;
 public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartMapper cartMapper;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
     private final ProductRepository productRepository;
 
-    private User getAuthenticatedUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Oturum açmış kullanıcı bulunamadı!"));
-    }
 
     @Override
     @Transactional(readOnly = true)
     public CartResponse getCart() {
-        User user = getAuthenticatedUser();
+        User user = currentUserService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> createNewCart(user));
 
@@ -44,7 +40,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartResponse addToCart(Long productId, Integer quantity) {
-        User user = getAuthenticatedUser();
+        User user = currentUserService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> createNewCart(user));
 
@@ -75,7 +71,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartResponse removeItemFromCart(Long cartItemId) {
-        User user = getAuthenticatedUser();
+        User user = currentUserService.getCurrentUser();
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Sepet bulunamadı!"));
 

@@ -6,9 +6,9 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record ProductRequest(@NotBlank String name,
-                             @NotNull @Positive BigDecimal price,
+public record ProductRequest(@NotBlank(message = "Ürün ismi boş bırakılamaz!") String name,
+                             @NotNull(message = "Ürün fiyatı boş bırakılamaz!") @Positive BigDecimal price,
                              String description,
                              String imageUrl,
-                             @NotNull Long categoryId) {
+                             @NotNull(message = "Kategori ID boş bırakılamaz!") Long categoryId) {
 }

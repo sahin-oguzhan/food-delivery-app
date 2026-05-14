@@ -9,6 +9,7 @@ import com.oguzhan.food_delivery.mapper.category.CategoryMapper;
 import com.oguzhan.food_delivery.repository.CategoryRepository;
 import com.oguzhan.food_delivery.repository.RestaurantRepository;
 import com.oguzhan.food_delivery.repository.UserRepository;
+import com.oguzhan.food_delivery.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,22 +23,12 @@ public class CategoryServiceImpl implements CategoryService{
 
     private final CategoryRepository categoryRepository;
     private final RestaurantRepository restaurantRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
     private final CategoryMapper categoryMapper;
-
-    private Restaurant getAuthenticatedUserRestaurant() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı."));
-
-        return restaurantRepository.findByOwnerId(currentUser.getId())
-                .orElseThrow(() -> new RuntimeException("İşlem yapabilmek için önce bir restoran oluşturmalısınız!"));
-
-    }
 
     @Override
     public List<CategoryResponse> findAllCategories() {
-        Restaurant restaurant = getAuthenticatedUserRestaurant();
+        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
 
         List<Category> categories = categoryRepository.findByRestaurantId(restaurant.getId());
 
@@ -48,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
-        Restaurant restaurant = getAuthenticatedUserRestaurant();
+        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
 
         Category category = new Category();
         category.setName(categoryRequest.name());
