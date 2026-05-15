@@ -14,11 +14,14 @@ import com.oguzhan.food_delivery.repository.ProductRepository;
 import com.oguzhan.food_delivery.repository.RestaurantRepository;
 import com.oguzhan.food_delivery.repository.UserRepository;
 import com.oguzhan.food_delivery.security.CurrentUserService;
+import com.oguzhan.food_delivery.service.imageUpload.ImageUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -29,7 +32,7 @@ public class ProductServiceImpl implements ProductService{
     private final RestaurantRepository restaurantRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
-
+    private final ImageUploadService imageUploadService;
 
 
     @Override
@@ -40,7 +43,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductResponse createProduct(ProductRequest productRequest) {
+    public ProductResponse createProduct(Long restaurantId, ProductRequest productRequest, MultipartFile image) {
         Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
         Category category = categoryRepository.findById(productRequest.categoryId())
                 .orElseThrow(() -> new RuntimeException("Kategori bulunamadı."));
@@ -49,11 +52,20 @@ public class ProductServiceImpl implements ProductService{
             throw new RuntimeException("Bu kategoriye ürün ekleme yetkiniz yok!");
         }
 
+        String imageUrl = null;
+        try {
+            if (image != null && !image.isEmpty()) {
+                imageUrl = imageUploadService.uploadImage(image);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Resim yüklenirken bir hata oluştu: " + e.getMessage());
+        }
+
         Product product = new Product();
         product.setName(productRequest.name());
         product.setDescription(productRequest.description());
         product.setPrice(productRequest.price());
-        product.setImageUrl(productRequest.imageUrl());
+        product.setImageUrl(imageUrl);
         product.setCategory(category);
         product.setRestaurant(restaurant);
         product.setAvailable(true);
