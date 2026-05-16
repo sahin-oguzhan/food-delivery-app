@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ProductService{
     List<ProductResponse> findAllProducts();
-    ProductResponse createProduct(Long restaurantId, ProductRequest productRequest, MultipartFile image);
+    ProductResponse createProduct(ProductRequest productRequest, MultipartFile image);
     ProductResponse updateProduct(Long productId, ProductUpdateRequest productUpdateRequest);
     void deleteProduct(Long productId);
 }

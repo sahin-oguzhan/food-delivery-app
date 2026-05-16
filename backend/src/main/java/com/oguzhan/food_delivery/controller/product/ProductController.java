@@ -4,12 +4,15 @@ import com.oguzhan.food_delivery.dto.product.ProductRequest;
 import com.oguzhan.food_delivery.dto.product.ProductResponse;
 import com.oguzhan.food_delivery.dto.product.ProductUpdateRequest;
 import com.oguzhan.food_delivery.service.product.ProductService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,10 +28,11 @@ public class ProductController {
         return ResponseEntity.ok(productService.findAllProducts());
     }
 
-    @PostMapping(value = "/restaurant/{restaurantId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductResponse> createProduct(@PathVariable Long restaurantId,
-                                                         @ModelAttribute("product") @Valid ProductRequest productRequest) throws IOException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(restaurantId, productRequest, productRequest.image()));
+    @PostMapping(value = "/restaurant", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> createProduct(@Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) @RequestPart("product") @Valid ProductRequest productRequest,
+                                                         @RequestParam(value = "image", required = false) MultipartFile image) throws IOException {
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(productRequest, image));
     }
 
     @PutMapping("/{productId}")

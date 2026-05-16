@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductResponse createProduct(Long restaurantId, ProductRequest productRequest, MultipartFile image) {
+    public ProductResponse createProduct(ProductRequest productRequest, MultipartFile image) {
         Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
         Category category = categoryRepository.findById(productRequest.categoryId())
                 .orElseThrow(() -> new RuntimeException("Kategori bulunamadı."));
