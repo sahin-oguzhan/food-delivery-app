@@ -32,54 +32,6 @@ public class OrderServiceImpl implements OrderService{
     private final OrderMapper orderMapper;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @Override
-    @Transactional
-    public OrderResponse createOrder() {
-        User user =  currentUserService.getCurrentUser();
-        Cart cart = currentUserService.getCurrentUserCart();
-
-        if (cart.getCartItems().isEmpty()) {
-            throw new RuntimeException("Sepetiniz boş, sipariş verilemez!");
-        }
-
-        Order order = new Order();
-        order.setCustomer(user);
-
-        Restaurant restaurant = cart.getCartItems().getFirst().getProduct().getRestaurant();
-        order.setRestaurant(restaurant);
-        order.setOrderStatus(OrderStatus.PENDING);
-        order.setOrderDate(LocalDateTime.now());
-        order.setTotalAmount(cart.getTotalPrice());
-
-        for (CartItem cartItem : cart.getCartItems()) {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(cartItem.getProduct());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPriceAtOrder(cartItem.getProduct().getPrice());
-
-            order.addOrderItem(orderItem);
-        }
-
-        Order savedOrder = orderRepository.save(order);
-        Long restaurantId = savedOrder.getRestaurant().getId();
-
-        System.out.println("📢 DİKKAT: WebSocket mesajı fırlatılıyor!");
-        System.out.println("📢 Hedef Kanal: /topic/restaurant/" + restaurantId);
-
-        OrderNotification notification = new OrderNotification(
-                savedOrder.getId(),
-                "Yeni bir siparişiniz var!",
-                savedOrder.getOrderStatus().name()
-        );
-
-        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantId, notification);
-
-        cart.getCartItems().clear();
-        cart.setTotalPrice(BigDecimal.ZERO);
-        cartRepository.save(cart);
-
-        return orderMapper.toResponse(savedOrder);
-    }
 
     @Override
     public List<OrderResponse> getOrderHistory() {
@@ -102,6 +54,49 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     @Transactional
+    public void createNewPaidOrder(Long cartId, String stripePaymentIntentId) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new RuntimeException("Sepet bulunamadı!"));
+
+        if (cart.getCartItems().isEmpty()) {
+            throw new RuntimeException("Sepetiniz boş, sipariş oluşturulamaz!");
+        }
+
+
+        Order order = new Order();
+        order.setCustomer(cart.getUser());
+        order.setRestaurant(cart.getCartItems().getFirst().getProduct().getRestaurant());
+        order.setStripePaymentIntentId(stripePaymentIntentId);
+        order.setOrderStatus(OrderStatus.PENDING);
+        order.setOrderDate(LocalDateTime.now());
+        order.setTotalAmount(cart.getTotalPrice());
+
+        for (CartItem cartItem : cart.getCartItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(cartItem.getProduct());
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setPriceAtOrder(cartItem.getProduct().getPrice());
+
+            order.addOrderItem(orderItem);
+        }
+
+        Order savedOrder = orderRepository.save(order);
+        Long restaurantId = savedOrder.getRestaurant().getId();
+
+        OrderNotification notification = new OrderNotification(
+                savedOrder.getId(),
+                "Yeni bir siparişiniz var!",
+                savedOrder.getOrderStatus().name()
+        );
+        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantId, notification);
+
+        cart.getCartItems().clear();
+        cart.setTotalPrice(BigDecimal.ZERO);
+        cartRepository.save(cart);
+    }
+
+    @Override
+    @Transactional
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus orderStatus) {
         User owner = currentUserService.getCurrentUser();
         Order order = orderRepository.findById(orderId)
@@ -114,5 +109,7 @@ public class OrderServiceImpl implements OrderService{
         order.setOrderStatus(orderStatus);
         return orderMapper.toResponse(orderRepository.save(order));
     }
+
+
 
 }
