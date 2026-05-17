@@ -1,6 +1,7 @@
 package com.oguzhan.food_delivery.service.order;
 
 import com.oguzhan.food_delivery.dto.order.OrderResponse;
+import com.oguzhan.food_delivery.dto.websocket.OrderNotification;
 import com.oguzhan.food_delivery.entity.Restaurant;
 import com.oguzhan.food_delivery.entity.User;
 import com.oguzhan.food_delivery.entity.cart.Cart;
@@ -13,12 +14,14 @@ import com.oguzhan.food_delivery.repository.cart.CartRepository;
 import com.oguzhan.food_delivery.repository.order.OrderRepository;
 import com.oguzhan.food_delivery.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +30,7 @@ public class OrderServiceImpl implements OrderService{
     private final CartRepository cartRepository;
     private final CurrentUserService currentUserService;
     private final OrderMapper orderMapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     @Transactional
@@ -57,6 +61,18 @@ public class OrderServiceImpl implements OrderService{
         }
 
         Order savedOrder = orderRepository.save(order);
+        Long restaurantId = savedOrder.getRestaurant().getId();
+
+        System.out.println("📢 DİKKAT: WebSocket mesajı fırlatılıyor!");
+        System.out.println("📢 Hedef Kanal: /topic/restaurant/" + restaurantId);
+
+        OrderNotification notification = new OrderNotification(
+                savedOrder.getId(),
+                "Yeni bir siparişiniz var!",
+                savedOrder.getOrderStatus().name()
+        );
+
+        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantId, notification);
 
         cart.getCartItems().clear();
         cart.setTotalPrice(BigDecimal.ZERO);
