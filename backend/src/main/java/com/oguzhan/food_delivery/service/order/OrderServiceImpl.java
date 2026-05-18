@@ -2,7 +2,6 @@ package com.oguzhan.food_delivery.service.order;
 
 import com.oguzhan.food_delivery.dto.order.OrderResponse;
 import com.oguzhan.food_delivery.dto.websocket.OrderNotification;
-import com.oguzhan.food_delivery.entity.Restaurant;
 import com.oguzhan.food_delivery.entity.User;
 import com.oguzhan.food_delivery.entity.cart.Cart;
 import com.oguzhan.food_delivery.entity.cart.CartItem;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +52,7 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     @Transactional
-    public void createNewPaidOrder(Long cartId, String stripePaymentIntentId) {
+    public void createNewOrder(Long cartId, String stripePaymentIntentId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new RuntimeException("Sepet bulunamadı!"));
 
@@ -83,12 +81,20 @@ public class OrderServiceImpl implements OrderService{
         Order savedOrder = orderRepository.save(order);
         Long restaurantId = savedOrder.getRestaurant().getId();
 
-        OrderNotification notification = new OrderNotification(
+        OrderNotification restaurantNotification = new OrderNotification(
                 savedOrder.getId(),
                 "Yeni bir siparişiniz var!",
                 savedOrder.getOrderStatus().name()
         );
-        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantId, notification);
+        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantId, restaurantNotification);
+
+        Long customerId = savedOrder.getCustomer().getId();
+        OrderNotification customerNotification = new OrderNotification(
+                savedOrder.getId(),
+                "Siparişiniz başarıyla alındı! Restoranın onaylaması bekleniyor...",
+                savedOrder.getOrderStatus().name()
+        );
+        messagingTemplate.convertAndSend("/topic/customer/" + customerId, customerNotification);
 
         cart.getCartItems().clear();
         cart.setTotalPrice(BigDecimal.ZERO);
@@ -107,7 +113,38 @@ public class OrderServiceImpl implements OrderService{
         }
 
         order.setOrderStatus(orderStatus);
-        return orderMapper.toResponse(orderRepository.save(order));
+        Order savedOrder = orderRepository.save(order);
+
+        String notificationMessage = switch (orderStatus) {
+            case PREPARING -> "Siparişiniz hazırlanmaya başlandı!";
+            case ON_THE_WAY -> "Siparişiniz yola çıktı, kuryemiz yolda!";
+            case DELIVERED -> "Siparişiniz teslim edildi. Afiyet olsun!";
+            case CANCELED -> "Siparişiniz iptal edildi!";
+            default -> "Sipariş durumunuz güncellendi: " + orderStatus.name();
+        };
+
+        Long customerId = savedOrder.getCustomer().getId();
+
+        OrderNotification customerNotification = new OrderNotification(
+                savedOrder.getId(),
+                notificationMessage,
+                savedOrder.getOrderStatus().name()
+        );
+
+        messagingTemplate.convertAndSend("/topic/customer/" + customerId, customerNotification);
+
+
+        Long restaurantId = savedOrder.getRestaurant().getId();
+
+        OrderNotification restaurantNotification = new OrderNotification(
+                savedOrder.getId(),
+                "Sipariş durumu güncellendi: ",
+                savedOrder.getOrderStatus().name()
+        );
+
+        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantId, restaurantNotification);
+
+        return orderMapper.toResponse(savedOrder);
     }
 
 

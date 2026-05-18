@@ -44,7 +44,7 @@ public class WebhookController {
                     String cartIdStr = paymentIntent.getMetadata().get("cartId");
                     Long cartId = Long.parseLong(cartIdStr);
 
-                    orderService.createNewPaidOrder(cartId, paymentIntent.getId());
+                    orderService.createNewOrder(cartId, paymentIntent.getId());
                 }
                 break;
             case "payment_intent.payment_failed":

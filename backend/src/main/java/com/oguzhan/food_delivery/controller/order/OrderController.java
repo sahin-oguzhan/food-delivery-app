@@ -1,6 +1,7 @@
 package com.oguzhan.food_delivery.controller.order;
 
 import com.oguzhan.food_delivery.dto.order.OrderResponse;
+import com.oguzhan.food_delivery.entity.order.OrderStatus;
 import com.oguzhan.food_delivery.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,5 +19,12 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getOrderHistory() {
         return ResponseEntity.ok(orderService.getOrderHistory());
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long id,
+                                                           @RequestParam OrderStatus orderStatus) {
+
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, orderStatus));
     }
 }
