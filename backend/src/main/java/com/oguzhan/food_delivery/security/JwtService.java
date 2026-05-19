@@ -78,9 +78,17 @@ public class JwtService {
         return getExpirationDateFromToken(token).before(new Date());
     }
 
+    public long getRemainingTime(String token) {
+        Date expirationDate = getExpirationDateFromToken(token);
+        long remainingMillis = expirationDate.getTime() - System.currentTimeMillis();
+
+        return remainingMillis > 0 ? remainingMillis : 0;
+    }
+
     public Boolean validateToken(String token, UserDetails userDetails) {
         String username = getUsernameFromToken(token);
         return (userDetails.getUsername().equals(username) && !isTokenExpired(token));
     }
+
 }
 

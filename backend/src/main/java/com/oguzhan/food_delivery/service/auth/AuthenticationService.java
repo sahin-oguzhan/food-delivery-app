@@ -1,4 +1,4 @@
-package com.oguzhan.food_delivery.service;
+package com.oguzhan.food_delivery.service.auth;
 
 import com.oguzhan.food_delivery.dto.user.AuthResponseDto;
 import com.oguzhan.food_delivery.dto.user.RegisterRequestDto;
@@ -7,12 +7,14 @@ import com.oguzhan.food_delivery.entity.User;
 import com.oguzhan.food_delivery.repository.RoleRepository;
 import com.oguzhan.food_delivery.repository.UserRepository;
 import com.oguzhan.food_delivery.security.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -25,6 +27,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public AuthResponseDto register(RegisterRequestDto registerRequestDto) throws Exception {
         Optional<User> user = userRepository.findByUsernameOrEmail(
@@ -73,5 +76,18 @@ public class AuthenticationService {
 
         var jwtToken = jwtService.generateToken(user);
         return new AuthResponseDto(jwtToken);
+    }
+
+    public void logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+
+            long remainingMillis = jwtService.getRemainingTime(jwt);
+            if (remainingMillis > 0) {
+                tokenBlacklistService.blacklistToken(jwt, Duration.ofMillis(remainingMillis));
+            }
+        }
     }
 }

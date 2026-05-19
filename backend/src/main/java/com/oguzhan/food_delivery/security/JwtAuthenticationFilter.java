@@ -1,5 +1,6 @@
 package com.oguzhan.food_delivery.security;
 
+import com.oguzhan.food_delivery.service.auth.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,6 +40,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
+
+        if (tokenBlacklistService.isTokenBlacklisted(jwt)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Geçersiz token. Lütfen tekrar giriş yapın!");
+            return;
+        }
+
         userEmail = jwtService.getUsernameFromToken(jwt);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
