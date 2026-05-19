@@ -1,6 +1,7 @@
 package com.oguzhan.food_delivery.controller.customer;
 
 import com.oguzhan.food_delivery.dto.customer.RestaurantMenuResponse;
+import com.oguzhan.food_delivery.dto.restaurant.RestaurantListResponse;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponse;
 import com.oguzhan.food_delivery.service.restaurant.RestaurantService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class CustomerRestaurantController {
     private final RestaurantService restaurantService;
 
     @GetMapping
-    public ResponseEntity<List<RestaurantResponse>> getAllRestaurants() {
+    public ResponseEntity<RestaurantListResponse> getAllRestaurants() {
         return ResponseEntity.ok(restaurantService.getAllRestaurants());
     }
 

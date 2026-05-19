@@ -4,11 +4,11 @@ import com.oguzhan.food_delivery.dto.customer.MenuCategoryResponse;
 import com.oguzhan.food_delivery.dto.customer.MenuItemResponse;
 import com.oguzhan.food_delivery.dto.customer.RestaurantMenuResponse;
 import com.oguzhan.food_delivery.dto.product.ProductResponse;
+import com.oguzhan.food_delivery.dto.restaurant.RestaurantListResponse;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantRequest;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponse;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantUpdateRequest;
 import com.oguzhan.food_delivery.entity.Category;
-import com.oguzhan.food_delivery.entity.Product;
 import com.oguzhan.food_delivery.entity.Restaurant;
 import com.oguzhan.food_delivery.entity.User;
 import com.oguzhan.food_delivery.mapper.restaurant.RestaurantMapper;
@@ -18,16 +18,19 @@ import com.oguzhan.food_delivery.repository.RestaurantRepository;
 import com.oguzhan.food_delivery.repository.UserRepository;
 import com.oguzhan.food_delivery.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RestaurantServiceImpl implements RestaurantService{
 
     private final RestaurantRepository restaurantRepository;
@@ -44,10 +47,14 @@ public class RestaurantServiceImpl implements RestaurantService{
     }
 
     @Override
-    public List<RestaurantResponse> getAllRestaurants() {
-        return restaurantRepository.findAll()
-                .stream().map(restaurantMapper::toResponse)
+    @Cacheable(value = "restaurants")
+    public RestaurantListResponse getAllRestaurants() {
+        log.info("getAllRestaurants");
+        List<Restaurant> restaurants = restaurantRepository.findAll();
+        List<RestaurantResponse> responseList = restaurants.stream()
+                .map(restaurantMapper::toResponse)
                 .toList();
+        return new RestaurantListResponse(responseList);
     }
 
     @Override
@@ -80,6 +87,7 @@ public class RestaurantServiceImpl implements RestaurantService{
 
     @Override
     @Transactional
+    @CacheEvict(value = "restaurants", allEntries = true)
     public RestaurantResponse createRestaurant(RestaurantRequest restaurantRequest) {
         String email = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
 
@@ -102,6 +110,7 @@ public class RestaurantServiceImpl implements RestaurantService{
 
     @Override
     @Transactional
+    @CacheEvict(value = "restaurants", allEntries = true)
     public RestaurantResponse updateRestaurant(RestaurantUpdateRequest restaurantUpdateRequest) {
         Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
 
