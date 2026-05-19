@@ -9,6 +9,7 @@ import com.oguzhan.food_delivery.dto.restaurant.RestaurantRequest;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponse;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantUpdateRequest;
 import com.oguzhan.food_delivery.entity.Category;
+import com.oguzhan.food_delivery.entity.Product;
 import com.oguzhan.food_delivery.entity.Restaurant;
 import com.oguzhan.food_delivery.entity.User;
 import com.oguzhan.food_delivery.mapper.restaurant.RestaurantMapper;

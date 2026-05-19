@@ -1,5 +1,6 @@
 package com.oguzhan.food_delivery.controller.product;
 
+import com.oguzhan.food_delivery.dto.product.ProductListResponse;
 import com.oguzhan.food_delivery.dto.product.ProductRequest;
 import com.oguzhan.food_delivery.dto.product.ProductResponse;
 import com.oguzhan.food_delivery.dto.product.ProductUpdateRequest;
@@ -18,14 +19,14 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/owner/products")
+@RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
 
-    @GetMapping
-    public ResponseEntity<List<ProductResponse>> findAllProducts() {
-        return ResponseEntity.ok(productService.findAllProducts());
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<ProductListResponse> getProductsByRestaurantId(@PathVariable Long restaurantId) {
+        return ResponseEntity.ok(productService.getProductsByRestaurantId(restaurantId));
     }
 
     @PostMapping(value = "/restaurant", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

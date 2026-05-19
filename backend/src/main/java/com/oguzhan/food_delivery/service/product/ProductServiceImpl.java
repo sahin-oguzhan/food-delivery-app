@@ -1,22 +1,22 @@
 package com.oguzhan.food_delivery.service.product;
 
-import com.oguzhan.food_delivery.dto.category.CategoryResponse;
+import com.oguzhan.food_delivery.dto.product.ProductListResponse;
 import com.oguzhan.food_delivery.dto.product.ProductRequest;
 import com.oguzhan.food_delivery.dto.product.ProductResponse;
 import com.oguzhan.food_delivery.dto.product.ProductUpdateRequest;
 import com.oguzhan.food_delivery.entity.Category;
 import com.oguzhan.food_delivery.entity.Product;
 import com.oguzhan.food_delivery.entity.Restaurant;
-import com.oguzhan.food_delivery.entity.User;
 import com.oguzhan.food_delivery.mapper.product.ProductMapper;
 import com.oguzhan.food_delivery.repository.CategoryRepository;
 import com.oguzhan.food_delivery.repository.ProductRepository;
 import com.oguzhan.food_delivery.repository.RestaurantRepository;
-import com.oguzhan.food_delivery.repository.UserRepository;
 import com.oguzhan.food_delivery.security.CurrentUserService;
 import com.oguzhan.food_delivery.service.imageUpload.ImageUploadService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +26,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final CurrentUserService currentUserService;
@@ -36,13 +37,20 @@ public class ProductServiceImpl implements ProductService{
 
 
     @Override
-    public List<ProductResponse> findAllProducts() {
-        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
-        return productRepository.findByRestaurantId(restaurant.getId());
+    @Cacheable(value = "restaurant_products", key = "#restaurantId")
+    public ProductListResponse getProductsByRestaurantId(Long restaurantId) {
+        log.info("getProductsByRestaurantId");
 
+        List<Product> products = productRepository.findByRestaurantId(restaurantId);
+        List<ProductResponse> responseList = products.stream()
+                .map(productMapper::toResponse)
+                .toList();
+
+        return new ProductListResponse(responseList);
     }
 
     @Override
+    @CacheEvict(value = "restaurant_products", key = "#result.restaurantId")
     public ProductResponse createProduct(ProductRequest productRequest, MultipartFile image) {
         Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
         Category category = categoryRepository.findById(productRequest.categoryId())
