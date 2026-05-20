@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '@/app/lib/api';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -25,7 +26,14 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       const response = await api.post('/auth/login', { email, password });
-      const { token, user: userData } = response.data;
+      const { token } = response.data;
+
+      const decoded = jwtDecode(token);
+
+      const userData = {
+        email: decoded.sub,
+        role: decoded.role?.[0],
+      };
 
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
