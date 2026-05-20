@@ -13,7 +13,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="tr">
-      <body className={`${inter.className} bg-gray-50 text-gray-90`}>
+      <body className={`${inter.className} bg-gray-50 text-gray-900`}>
         <AuthProvider>
           <Navbar />
           <main className="min-h-screen pt-4">{children}</main>
