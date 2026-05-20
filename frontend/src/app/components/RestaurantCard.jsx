@@ -19,7 +19,7 @@ export default function RestaurantCard({ restaurant }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-lg shadow-md flex items-center font-bold text-sm text-gray-800">
-          ⭐ {restaurant.rating}
+          ⭐ {mockRating}
         </div>
       </div>
       {/* Restorant Bilgileri */}
