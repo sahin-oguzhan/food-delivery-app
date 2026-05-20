@@ -1,40 +1,17 @@
 import Hero from './components/Hero';
 import RestaurantCard from './components/RestaurantCard';
+import { api } from './lib/api';
 
-const mockRestaurants = [
-  {
-    id: 1,
-    name: 'Anne Eli Lezzetleri',
-    category: 'Geleneksel Türk Mutfağı • Mercimek Köftesi • Kısır',
-    rating: '4.9',
-    deliveryTime: '25-35',
-    minOrderValue: '150',
-    imageUrl:
-      'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?q=80&w=2000',
-  },
-  {
-    id: 2,
-    name: 'Burger Station',
-    category: 'Fast Food • Burger • Patates',
-    rating: '4.5',
-    deliveryTime: '15-25',
-    minOrderValue: '120',
-    imageUrl:
-      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=2000',
-  },
-  {
-    id: 3,
-    name: 'Napoli Pizza',
-    category: 'İtalyan • Pizza • Makarna',
-    rating: '4.7',
-    deliveryTime: '30-40',
-    minOrderValue: '200',
-    imageUrl:
-      'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2000',
-  },
-];
+export default async function Home() {
+  let restaurants = [];
 
-export default function Home() {
+  try {
+    const response = await api.get('/restaurants');
+    restaurants = response.data.restaurants;
+  } catch (error) {
+    console.error("Backend'e bağlanırken hata oluştu!", error.message);
+  }
+
   return (
     <div className="min-h-screen">
       <Hero />
@@ -43,7 +20,7 @@ export default function Home() {
           Popüler Restoranlar
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {mockRestaurants.map((restaurant) => (
+          {restaurants.map((restaurant) => (
             <RestaurantCard key={restaurant.id} restaurant={restaurant} />
           ))}
         </div>

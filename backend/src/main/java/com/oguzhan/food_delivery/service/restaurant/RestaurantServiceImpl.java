@@ -42,8 +42,10 @@ public class RestaurantServiceImpl implements RestaurantService{
     private final ProductRepository productRepository;
 
     @Override
-    public RestaurantResponse getRestaurant() {
-        Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
+    public RestaurantResponse getRestaurant(Long restaurantId) {
+        Restaurant restaurant  = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RuntimeException("Restoran bulunamadı!"));
+
         return restaurantMapper.toResponse(restaurant);
     }
 

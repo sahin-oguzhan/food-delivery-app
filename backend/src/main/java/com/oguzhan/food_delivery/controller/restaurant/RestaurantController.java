@@ -1,5 +1,6 @@
 package com.oguzhan.food_delivery.controller.restaurant;
 
+import com.oguzhan.food_delivery.dto.restaurant.RestaurantListResponse;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantRequest;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponse;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantUpdateRequest;
@@ -11,15 +12,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/owner/restaurants")
+@RequestMapping("/api/restaurants")
 @RequiredArgsConstructor
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
 
     @GetMapping
-    public ResponseEntity<RestaurantResponse> findRestaurant() {
-        return ResponseEntity.ok(restaurantService.getRestaurant());
+    public ResponseEntity<RestaurantListResponse> findAllRestaurants() {
+        return ResponseEntity.ok(restaurantService.getAllRestaurants());
+    }
+
+
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<RestaurantResponse> findRestaurant(@PathVariable Long restaurantId) {
+        return ResponseEntity.ok(restaurantService.getRestaurant(restaurantId));
     }
 
     @PostMapping

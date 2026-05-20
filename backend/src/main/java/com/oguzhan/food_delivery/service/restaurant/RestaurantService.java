@@ -7,7 +7,7 @@ import com.oguzhan.food_delivery.dto.restaurant.RestaurantResponse;
 import com.oguzhan.food_delivery.dto.restaurant.RestaurantUpdateRequest;
 
 public interface RestaurantService {
-    public RestaurantResponse getRestaurant();
+    public RestaurantResponse getRestaurant(Long restaurantId);
     public RestaurantListResponse getAllRestaurants();
     public RestaurantMenuResponse getRestaurantMenu(Long restaurantId);
     public RestaurantResponse createRestaurant(RestaurantRequest restaurantRequest);

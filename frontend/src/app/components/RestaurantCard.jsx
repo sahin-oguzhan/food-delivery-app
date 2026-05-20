@@ -1,6 +1,11 @@
 import Link from 'next/link';
 
 export default function RestaurantCard({ restaurant }) {
+  const defaultImage =
+    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=2000';
+  const mockRating = '4.8';
+  const mockTime = '25-35';
+  const mockMinOrder = '150';
   return (
     <Link
       href={`/restaurants/${restaurant.id}`}
@@ -9,7 +14,7 @@ export default function RestaurantCard({ restaurant }) {
       {/* Restoran Görseli */}
       <div className="relative h-48 w-full overflow-hidden">
         <img
-          src={restaurant.imageUrl}
+          src={defaultImage}
           alt={restaurant.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
@@ -24,13 +29,13 @@ export default function RestaurantCard({ restaurant }) {
             {restaurant.name}
           </h3>
         </div>
-        <p className="text-gray-500 text-sm mb-4">{restaurant.category}</p>
+        <p className="text-gray-500 text-sm mb-4">{restaurant.description}</p>
         <div className="flex items-center justify-between border-t border-gray-200 pt-4">
           <div className="flex items-center text-sm font-medium text-gray-600">
-            {restaurant.deliveryTime} dk{' '}
+            {mockTime} dk{' '}
           </div>
           <div className="text-sm font-medium text-green-600 bg-green-100 px-3 py-1 rounded-full">
-            {restaurant.minOrderValue} TL min.
+            {mockMinOrder} TL min.
           </div>
         </div>
       </div>
