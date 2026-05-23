@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { api } from '@/app/lib/api';
@@ -101,6 +103,7 @@ export function CartProvider({ children }) {
 
   const cartTotal = cart.reduce(
     (total, item) => total + (item.product?.price || 0) * item.quantity,
+    0,
   );
 
   return (
