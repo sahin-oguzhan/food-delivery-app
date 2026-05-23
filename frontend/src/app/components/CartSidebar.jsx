@@ -36,47 +36,51 @@ export default function CartSidebar({ isOpen, onClose }) {
               <p>Sepetiniz şu an boş.</p>
             </div>
           ) : (
-            cartItems.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm"
-              >
-                {/* Ürün Bilgileri */}
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">
-                    {item.productName}
-                  </h3>
-                  <p className="text-red-600 font-bold mt-1">{item.price} ₺</p>
-                </div>
+            [...cartItems]
+              .sort((a, b) => a.id - b.id)
+              .map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm"
+                >
+                  {/* Ürün Bilgileri */}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900">
+                      {item.productName}
+                    </h3>
+                    <p className="text-red-600 font-bold mt-1">
+                      {item.price} ₺
+                    </p>
+                  </div>
 
-                {/*Adet güncelleme ve silme */}
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center border border-gray-200 rounded-lg">
+                  {/*Adet güncelleme ve silme */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center border border-gray-200 rounded-lg">
+                      <button
+                        onClick={() => updateQuantity(item.productId, -1)}
+                        className="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors"
+                      >
+                        -
+                      </button>
+                      <span className="px-2 font-medium text-gray-900">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.productId, 1)}
+                        className="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors"
+                      >
+                        +
+                      </button>
+                    </div>
                     <button
-                      onClick={() => updateQuantity(item.productId, -1)}
-                      className="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors"
+                      onClick={() => removeFromCart(item.id)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
-                      -
-                    </button>
-                    <span className="px-2 font-medium text-gray-900">
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => updateQuantity(item.productId, 1)}
-                      className="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors"
-                    >
-                      +
+                      🗑️
                     </button>
                   </div>
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    🗑️
-                  </button>
                 </div>
-              </div>
-            ))
+              ))
           )}
         </div>
         {/*Toplam tutar ve Sipariş */}
