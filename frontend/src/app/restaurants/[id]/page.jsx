@@ -1,4 +1,5 @@
 import { api } from '@/app/lib/api';
+import ProductList from '@/app/components/ProductList';
 
 export default async function RestaurantDetail({ params }) {
   const { id } = await params;
@@ -63,38 +64,7 @@ export default async function RestaurantDetail({ params }) {
         <h2 className="text-3xl font-bold text-gray-900 mb-8 border-b pb-4">
           Menü
         </h2>
-        {!products || products.length === 0 ? (
-          <div className="text-center text-gray-500 py-10 bg-white rounded-2xl shadow-sm border border-gray-100">
-            Bu restoran henüz menüsüne ürün eklememiş.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold text-gray-900">
-                      {product.name}
-                    </h3>
-                    <span className="text-lg font-bold text-green-600 bg-green-50 px-3 py-1 rounded-lg">
-                      {product.price} TL
-                    </span>
-                  </div>
-                  <p className="text-gray-500 text-sm mb-4">
-                    {product.description}
-                  </p>
-                </div>
-
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors">
-                  Sepete Ekle
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+        <ProductList products={products} />
       </main>
     </div>
   );

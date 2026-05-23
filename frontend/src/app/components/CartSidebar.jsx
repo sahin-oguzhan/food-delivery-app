@@ -7,6 +7,9 @@ export default function CartSidebar({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const cartItems = cart?.items || [];
+  const totalPrice = cart?.totalPrice || 0;
+
   return (
     <>
       {/*Overlay */}
@@ -27,32 +30,30 @@ export default function CartSidebar({ isOpen, onClose }) {
 
         {/*Sepet içeriği */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
-          {cart.length === 0 ? (
+          {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
               <span className="text-4xl">🛒</span>
               <p>Sepetiniz şu an boş.</p>
             </div>
           ) : (
-            cart.map((item) => (
+            cartItems.map((item) => (
               <div
-                key={item.product.id}
+                key={item.id}
                 className="flex items-center gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm"
               >
                 {/* Ürün Bilgileri */}
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900">
-                    {item.product.name}
+                    {item.productName}
                   </h3>
-                  <p className="text-red-600 font-bold mt-1">
-                    {item.product.price} ₺
-                  </p>
+                  <p className="text-red-600 font-bold mt-1">{item.price} ₺</p>
                 </div>
 
                 {/*Adet güncelleme ve silme */}
                 <div className="flex items-center gap-3">
                   <div className="flex items-center border border-gray-200 rounded-lg">
                     <button
-                      onClick={() => updateQuantity(item.product.id, -1)}
+                      onClick={() => updateQuantity(item.productId, -1)}
                       className="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors"
                     >
                       -
@@ -61,14 +62,14 @@ export default function CartSidebar({ isOpen, onClose }) {
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => updateQuantity(item.product.id, 1)}
+                      onClick={() => updateQuantity(item.productId, 1)}
                       className="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors"
                     >
                       +
                     </button>
                   </div>
                   <button
-                    onClick={() => removeFromCart(item.product.id)}
+                    onClick={() => removeFromCart(item.id)}
                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                   >
                     🗑️

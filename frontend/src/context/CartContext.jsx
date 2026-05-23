@@ -7,7 +7,7 @@ import { api } from '@/app/lib/api';
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState({ items: [], totalPrice: 0 });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -24,7 +24,8 @@ export function CartProvider({ children }) {
         setCart(response.data.items || []);
       } catch (error) {
         console.error(
-          'Sepet bilgisine ulaşmaya çalışırken hata oluştu: ' + error.message,
+          'Sepet bilgisine ulaşmaya çalışırken hata oluştu: ',
+          error.message,
         );
       } finally {
         setLoading(false);
@@ -35,76 +36,66 @@ export function CartProvider({ children }) {
   }, []);
 
   const addToCart = async (product) => {
-    const existingItem = cart.find((item) => item.product.id === product.id);
+    const currentItems = cart?.items || [];
+    const existingItem = currentItems.find(
+      (item) => item.productId === product.id,
+    );
 
     if (existingItem) {
-      setCart(
-        cart.map((item) => item.product.id === product.id)
-          ? { ...item, quantity: item.quantity + 1 }
-          : item,
-      );
+      await updateQuantity(product.id, 1);
     } else {
-      setCart([...cart, { product, quantity: 1 }]);
-    }
-
-    try {
-      await api.post('/cart/add', {
-        productId: product.id,
-        quantity: 1,
-      });
-    } catch (error) {
-      console.error('Ürün sepete eklenirken hata oluştu: ' + error.message);
-    }
-  };
-
-  const removeFromCart = async (productId) => {
-    setCart(cart.filter((item) => item.product.id !== productId));
-
-    try {
-      await api.delete('/cart/item/${productId}');
-    } catch (error) {
-      console.error(
-        'Ürün sepetten silinirken bir hata oluştu: ' + error.message,
-      );
+      try {
+        const response = await api.post('/cart/add', {
+          productId: product.id,
+          quantity: 1,
+        });
+        setCart(response.data);
+      } catch (error) {
+        console.error('Ürün sepete eklenirken hata oluştu: ', error.message);
+      }
     }
   };
 
   const updateQuantity = async (productId, amount) => {
-    let targetQuantity = 1;
+    const currentItems = cart?.items || [];
+    const item = currentItems.find((item) => item.productId === productId);
+    if (!item) return;
 
-    setCart(
-      cart.map((item) => {
-        if (item.product.id === productId) {
-          targetQuantity = Math.max(1, item.quantity + amount);
-          return { ...item, quantity: targetQuantity };
-        }
-        return item;
-      }),
-    );
+    if (item.quantity === 1 && amount === -1) {
+      await removeFromCart(item.id);
+      return;
+    }
 
     try {
-      await api.put('/cart/update', {
-        productId,
-        quantity: targetQuantity,
+      const response = await api.put('/cart/update', {
+        productId: productId,
+        quantity: item.quantity + amount,
       });
+      setCart(response.data);
     } catch (error) {
-      console.error('Ürün sepete eklenirken bir hata oluştu: ', error.message);
+      console.error('Miktar güncellenirken hata oluştu:', error.message);
+    }
+  };
+
+  const removeFromCart = async (productId) => {
+    try {
+      const response = await api.delete(`/cart/item/${productId}`);
+      setCart(response.data);
+    } catch (error) {
+      console.error('Ürün silinrken hata oluştu:', error.message);
     }
   };
 
   const clearCart = async () => {
-    setCart([]);
     try {
       await api.delete('/cart/clear');
+      setCart(response.data);
     } catch (error) {
       console.error('Sepet temizlenirken bir hata oluştu: ' + error.message);
     }
   };
 
-  const cartTotal = cart.reduce(
-    (total, item) => total + (item.product?.price || 0) * item.quantity,
-    0,
-  );
+  const cartTotal = cart?.totalPrice || 0;
 
   return (
     <CartContext.Provider

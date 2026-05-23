@@ -12,7 +12,11 @@ export default function Navbar() {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartItems = cart?.items || [];
+  const cartItemCount = cartItems.reduce(
+    (total, item) => total + (item?.quantity || 0),
+    0,
+  );
   return (
     <>
       <nav className="bg-white border-b border-gray-100 sticky top-0 z-30">
