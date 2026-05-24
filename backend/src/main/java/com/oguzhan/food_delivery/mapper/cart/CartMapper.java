@@ -15,8 +15,14 @@ public class CartMapper {
             return null;
         }
 
+        Long currentRestaurantId = null;
+        if (cart.getCartItems() != null && !cart.getCartItems().isEmpty()) {
+            currentRestaurantId = cart.getCartItems().getFirst().getProduct().getRestaurant().getId();
+        }
+
         return new CartResponse(
                 cart.getId(),
+                currentRestaurantId,
                 cart.getCartItems().stream().map(cartItemMapper::toCartItemResponse).toList(),
                 cart.getTotalPrice()
         );

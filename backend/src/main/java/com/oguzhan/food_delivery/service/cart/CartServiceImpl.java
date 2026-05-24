@@ -43,8 +43,10 @@ public class CartServiceImpl implements CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Ürün bulunamadı!"));
 
-        if (!cart.getCartItems().getFirst().getProduct().getRestaurant().equals(product.getRestaurant())) {
-            throw new RuntimeException("Farklı bir restorandan ürün ekleyemezsiniz");
+        if (!cart.getCartItems().isEmpty()) {
+            if (!cart.getCartItems().getFirst().getProduct().getRestaurant().equals(product.getRestaurant())) {
+                throw new RuntimeException("Farklı bir restorandan ürün ekleyemezsiniz");
+            }
         }
 
         Optional<CartItem> existingItem = cart.getCartItems().stream()
@@ -102,19 +104,21 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public CartResponse clearCart() {
         Cart cart = currentUserService.getCurrentUserCart();
 
         cart.getCartItems().clear();
-        Cart clearedCart = cartRepository.save(cart);
+        cart.setTotalPrice(BigDecimal.ZERO);
 
-        return cartMapper.toCartResponse(clearedCart);
+        return cartMapper.toCartResponse(cartRepository.save(cart));
     }
 
     private void updateCartTotal(Cart cart) {
         BigDecimal totalPrice = cart.getCartItems().stream()
                 .map(CartItem::getSubTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal::add)
+                        .orElse(BigDecimal.ZERO);
         cart.setTotalPrice(totalPrice);
     }
 
