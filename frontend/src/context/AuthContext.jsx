@@ -13,13 +13,17 @@ export function AuthProvider({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    const isTokenValid = checkTokenExpiration();
 
-    if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    if (isTokenValid) {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      if (token && storedUser) {
+        setUser(JSON.parse(storedUser));
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
     }
+
     setLoading(false);
   }, []);
 
@@ -62,6 +66,26 @@ export function AuthProvider({ children }) {
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
     router.push('/login');
+  };
+
+  const checkTokenExpiration = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+
+      if (decoded.exp < currentTime) {
+        console.warn('Oturum süresi dolduğu için otomatik çıkış yapıldı.');
+        logout();
+        return false;
+      }
+      return true;
+    } catch (error) {
+      logout();
+      return false;
+    }
   };
 
   return (
