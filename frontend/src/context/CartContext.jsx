@@ -88,7 +88,7 @@ export function CartProvider({ children }) {
 
   const clearCart = async () => {
     try {
-      await api.delete('/cart/clear');
+      const response = await api.delete('/cart/clear');
       setCart(response.data);
     } catch (error) {
       console.error('Sepet temizlenirken bir hata oluştu: ' + error.message);

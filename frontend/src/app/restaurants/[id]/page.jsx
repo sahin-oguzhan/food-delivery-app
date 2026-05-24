@@ -64,7 +64,7 @@ export default async function RestaurantDetail({ params }) {
         <h2 className="text-3xl font-bold text-gray-900 mb-8 border-b pb-4">
           Menü
         </h2>
-        <ProductList products={products} />
+        <ProductList products={products} currentRestaurantId={id} />
       </main>
     </div>
   );
