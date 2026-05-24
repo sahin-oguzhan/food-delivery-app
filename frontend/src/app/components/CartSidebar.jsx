@@ -1,10 +1,12 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
+import { useRouter } from 'next/navigation';
 
 export default function CartSidebar({ isOpen, onClose }) {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } =
     useCart();
+  const router = useRouter();
 
   if (!isOpen) return null;
 
@@ -93,7 +95,10 @@ export default function CartSidebar({ isOpen, onClose }) {
               </span>
             </div>
             <div className="flex gap-5">
-              <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-colors cursor-pointer">
+              <button
+                onClick={() => router.push('/checkout')}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-colors cursor-pointer"
+              >
                 Siparişi Tamamla
               </button>
               <button
