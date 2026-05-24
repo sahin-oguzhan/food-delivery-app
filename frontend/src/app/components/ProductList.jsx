@@ -2,11 +2,16 @@
 
 import { useCart } from '@/context/CartContext';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function ProductList({ products, currentRestaurantId }) {
   const { addToCart, cart, clearCart } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
 
   const [showModal, setShowModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingProduct, setPendingProduct] = useState(null);
 
   if (!products || products.length === 0) {
@@ -18,6 +23,11 @@ export default function ProductList({ products, currentRestaurantId }) {
   }
 
   const handleAddClick = (product) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
     const cartItemsCount = cart?.items?.length || 0;
 
     const cartRestId = String(cart?.restaurantId || '');
@@ -103,6 +113,37 @@ export default function ProductList({ products, currentRestaurantId }) {
                 className="px-4 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors cursor-pointer text-sm shadow-sm shadow-red-100"
               >
                 Sepeti Temizle ve Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/*Oturum açma uyarısı */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all animate-in fade-in zoom-in duration-200">
+            <div className="text-blue-500 text-3xl mb-2">🔒</div>
+            <h3 className="text-xl font-bold text-gray-900">
+              Oturum Açmanız Gerekiyor
+            </h3>
+            <p className="text-gray-500 text-sm mt-2 leading-relaxed">
+              Lezzetli yemekleri sepetinize ekleyebilmek ve sipariş
+              oluşturabilmek için giriş yapmanız gerekmektedir.
+            </p>
+
+            <div className="flex gap-3 mt-6 justify-end">
+              <button
+                onClick={() => setShowAuthModal(false)}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors cursor-pointer text-sm"
+              >
+                Kapat
+              </button>
+              <button
+                onClick={() => router.push('/login')}
+                className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors cursor-pointer text-sm shadow-sm shadow-blue-100"
+              >
+                Giriş Yap
               </button>
             </div>
           </div>
