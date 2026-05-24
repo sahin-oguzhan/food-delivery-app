@@ -37,7 +37,6 @@ export default function CheckoutForm({ clientSecret }) {
       setErrorMessage(error.message || 'Ödeme sırasında bir hata oluştu.');
       setIsProcessing(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      clearCart();
       router.push('/orders/success');
     }
   };

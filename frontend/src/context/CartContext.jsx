@@ -14,14 +14,14 @@ export function CartProvider({ children }) {
   useEffect(() => {
     const fetchCart = async () => {
       if (!user) {
-        setCart([]);
+        setCart({ items: [], totalPrice: 0 });
         setLoading(false);
         return;
       }
 
       try {
         const response = await api.get('/cart');
-        setCart(response.data.items || []);
+        setCart(response.data || { items: [], totalPrice: 0 });
       } catch (error) {
         console.error(
           'Sepet bilgisine ulaşmaya çalışırken hata oluştu: ',
@@ -33,7 +33,7 @@ export function CartProvider({ children }) {
     };
 
     fetchCart();
-  }, []);
+  }, [user]);
 
   const addToCart = async (product) => {
     const currentItems = cart?.items || [];
