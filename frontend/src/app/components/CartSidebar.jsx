@@ -3,12 +3,12 @@
 import { useCart } from '@/context/CartContext';
 
 export default function CartSidebar({ isOpen, onClose }) {
-  const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } =
+    useCart();
 
   if (!isOpen) return null;
 
   const cartItems = cart?.items || [];
-  const totalPrice = cart?.totalPrice || 0;
 
   return (
     <>
@@ -84,7 +84,7 @@ export default function CartSidebar({ isOpen, onClose }) {
           )}
         </div>
         {/*Toplam tutar ve Sipariş */}
-        {cart.length > 0 && (
+        {cartItems.length > 0 && (
           <div className="border-t border-gray-100 p-5 bg-gray-50">
             <div className="flex justify-between items-center mb-4">
               <span className="text-gray-600 font-medium">Ara Toplam</span>
@@ -92,9 +92,17 @@ export default function CartSidebar({ isOpen, onClose }) {
                 {cartTotal.toFixed(2)} ₺
               </span>
             </div>
-            <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-colors cursor-pointer">
-              Siparişi Tamamla
-            </button>
+            <div className="flex gap-5">
+              <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-colors cursor-pointer">
+                Siparişi Tamamla
+              </button>
+              <button
+                onClick={() => clearCart()}
+                className="w-full bg-gray-300 hover:bg-red-700 hover:text-white font-bold py-4 rounded-xl transition-colors cursor-pointer"
+              >
+                Sepeti Temizle
+              </button>
+            </div>
           </div>
         )}
       </div>
