@@ -20,7 +20,7 @@ public class RestaurantOrderController {
         return ResponseEntity.ok(orderService.getRestaurantOrders());
     }
 
-    @PatchMapping("/{orderId}/status")
+    @PutMapping("/{orderId}/status")
     public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long orderId,
                                                            @RequestParam OrderStatus orderStatus) {
         return ResponseEntity.ok(orderService.updateOrderStatus(orderId, orderStatus));

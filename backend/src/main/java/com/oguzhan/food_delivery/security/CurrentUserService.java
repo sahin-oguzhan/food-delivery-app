@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class CurrentUserService {
@@ -35,7 +37,12 @@ public class CurrentUserService {
     public Cart getCurrentUserCart() {
         User user = getCurrentUser();
         return cartRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Sepet bulunamadı!"));
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    newCart.setTotalPrice(BigDecimal.ZERO);
+                    return cartRepository.save(newCart);
+                });
     }
 
 }

@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/api/customer/restaurants/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/error", "/ws/**", "/api/webhooks/stripe").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/restaurants/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/owner/**").hasRole("OWNER")
+                        .requestMatchers("/api/owner/**").hasAnyRole("OWNER", "ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -54,7 +54,7 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
 
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
 
