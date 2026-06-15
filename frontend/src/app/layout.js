@@ -3,6 +3,7 @@ import './globals.css';
 import Navbar from './components/Navbar';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
+import { WebSocketProvider } from '@/context/WebSocketContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,10 +17,12 @@ export default function RootLayout({ children }) {
     <html lang="tr">
       <body className={`${inter.className} bg-gray-50 text-gray-900`}>
         <AuthProvider>
-          <CartProvider>
-            <Navbar />
-            <main className="min-h-screen pt-4">{children}</main>
-          </CartProvider>
+          <WebSocketProvider>
+            <CartProvider>
+              <Navbar />
+              <main className="min-h-screen pt-4">{children}</main>
+            </CartProvider>
+          </WebSocketProvider>
         </AuthProvider>
       </body>
     </html>
