@@ -28,6 +28,11 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
+        Long userId = null;
+        if(userDetails instanceof com.oguzhan.food_delivery.entity.User) {
+            userId = ((com.oguzhan.food_delivery.entity.User) userDetails).getId();
+        }
+
 
         return Jwts
                 .builder()
@@ -36,12 +41,25 @@ public class JwtService {
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000*60*60))
                 .claim("role", role)
+                .claim("id", userId)
                 .compact();
     }
 
     private SecretKey getSignKey(String SECRET_KEY) {
         byte[] decode = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(decode);
+    }
+
+    public Long getIdFromToken(String token) {
+        Claims payload = Jwts
+                .parser()
+                .verifyWith(getSignKey(SECRET_KEY))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        Number id = payload.get("id", Number.class);
+        return id != null ? id.longValue() : null;
     }
 
     public String getUsernameFromToken(String token) {
