@@ -79,14 +79,14 @@ public class OrderServiceImpl implements OrderService{
         }
 
         Order savedOrder = orderRepository.save(order);
-        Long restaurantId = savedOrder.getRestaurant().getId();
+        Long restaurantOwnerId = savedOrder.getRestaurant().getOwner().getId();
 
         OrderNotification restaurantNotification = new OrderNotification(
                 savedOrder.getId(),
                 "Yeni bir siparişiniz var!",
                 savedOrder.getOrderStatus().name()
         );
-        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantId, restaurantNotification);
+        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantOwnerId, restaurantNotification);
 
         Long customerId = savedOrder.getCustomer().getId();
         OrderNotification customerNotification = new OrderNotification(
@@ -134,7 +134,7 @@ public class OrderServiceImpl implements OrderService{
         messagingTemplate.convertAndSend("/topic/customer/" + customerId, customerNotification);
 
 
-        Long restaurantId = savedOrder.getRestaurant().getId();
+        Long restaurantOwnerId = savedOrder.getRestaurant().getOwner().getId();
 
         OrderNotification restaurantNotification = new OrderNotification(
                 savedOrder.getId(),
@@ -142,7 +142,7 @@ public class OrderServiceImpl implements OrderService{
                 savedOrder.getOrderStatus().name()
         );
 
-        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantId, restaurantNotification);
+        messagingTemplate.convertAndSend("/topic/restaurant/" + restaurantOwnerId, restaurantNotification);
 
         return orderMapper.toResponse(savedOrder);
     }
