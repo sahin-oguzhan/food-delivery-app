@@ -1,29 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useCustomerOrders } from '@/hooks/useCustomerOrders';
 import Link from 'next/link';
-import { api } from '../lib/api';
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await api.get('/customer/orders');
-        console.log(response);
-        setOrders(response.data);
-      } catch (error) {
-        console.error('Siparişler çekilemedi: ', error);
-        setError('Sipariş geçmişiniz yüklenirken bir hata oluştu');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOrders();
-  }, []);
+  const { orders, loading, error } = useCustomerOrders(user);
 
   const getStatusBadge = (status) => {
     switch (status) {

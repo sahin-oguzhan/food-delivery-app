@@ -12,19 +12,54 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const isTokenValid = checkTokenExpiration();
+  const fetchCurrentUser = async (token) => {
+    try {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      const response = await api.get(`/auth/me`);
 
-    if (isTokenValid) {
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
-      if (token && storedUser) {
-        setUser(JSON.parse(storedUser));
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
+      const backendUser = response.data;
+      const userData = {
+        id: backendUser.id,
+        username: backendUser.username,
+        email: backendUser.email,
+        role: backendUser.roles?.[0],
+      };
+
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setLoading(false);
+    } catch (error) {
+      console.error(
+        'Kullanıcı profili senkronize edilemedi, oturum kapatılıyor:',
+        error,
+      );
+      logout();
+      setLoading(false);
     }
+  };
 
-    setLoading(false);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+
+        if (decoded.exp < currentTime) {
+          console.warn('Oturum süresi doldu.');
+          logout();
+          setLoading(false);
+        } else {
+          fetchCurrentUser(token);
+        }
+      } catch (error) {
+        logout();
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const login = async (email, password) => {
@@ -32,19 +67,20 @@ export function AuthProvider({ children }) {
       const response = await api.post('/auth/login', { email, password });
       const { token } = response.data;
 
+      localStorage.setItem('token', token);
+
       const decoded = jwtDecode(token);
 
       const userData = {
+        id: decoded.id,
         email: decoded.sub,
         role: decoded.role?.[0],
       };
 
-      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
 
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      setUser(userData);
       router.push('/');
       return { success: true };
     } catch (error) {
@@ -66,26 +102,6 @@ export function AuthProvider({ children }) {
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
     router.push('/login');
-  };
-
-  const checkTokenExpiration = () => {
-    const token = localStorage.getItem('token');
-    if (!token) return false;
-
-    try {
-      const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-
-      if (decoded.exp < currentTime) {
-        console.warn('Oturum süresi dolduğu için otomatik çıkış yapıldı.');
-        logout();
-        return false;
-      }
-      return true;
-    } catch (error) {
-      logout();
-      return false;
-    }
   };
 
   return (

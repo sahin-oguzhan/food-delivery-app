@@ -2,62 +2,21 @@
 
 import { api } from '@/app/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { useWebSocket } from '@/context/WebSocketContext';
+import { useOwnerGuard } from '@/hooks/useOwnerGuard';
+import { useRestaurantOrders } from '@/hooks/useRestaurantOrders';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function RestaurantDashboard() {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const { user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (
-      !loading &&
-      (!user || (user.role !== 'ROLE_OWNER' && user.role !== 'ROLE_ADMIN'))
-    ) {
-      router.push('/');
-    }
-  }, [user, loading, router]);
-
-  const fetchRestaurantOrders = async () => {
-    try {
-      const response = await api.get('/owner/orders');
-      setOrders(response.data);
-    } catch (error) {
-      console.error('Restoran siparişleri çekilemedi:', error);
-      setError('Siparişler yüklenirken bir hata oluştu.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      fetchRestaurantOrders();
-    }
-  }, [user]);
-
-  const handleStatusUpdate = async (orderId, newStatus) => {
-    try {
-      const response = await api.put(
-        `owner/orders/${orderId}/status?orderStatus=${newStatus}`,
-        {
-          status: newStatus,
-        },
-      );
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.orderId === orderId ? response.data : order,
-        ),
-      );
-    } catch (error) {
-      console.error('Sipariş durumu güncellenemedi:', error);
-      alert('Durum güncellenirken bir hata oluştu');
-    }
-  };
+  const { user, loading: authLoading } = useOwnerGuard();
+  const {
+    orders,
+    loading: ordersLoading,
+    error,
+    updateOrderStatus,
+    refetch,
+  } = useRestaurantOrders(user);
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -76,12 +35,13 @@ export default function RestaurantDashboard() {
     }
   };
 
-  if (loading)
+  if (authLoading || ordersLoading)
     return (
       <div className="text-center py-20 font-semibold text-gray-500 animate-pulse">
         Panel yükleniyor... ⏳
       </div>
     );
+
   if (error)
     return (
       <div className="text-center py-20 font-semibold text-red-500">
@@ -101,7 +61,7 @@ export default function RestaurantDashboard() {
           </p>
         </div>
         <button
-          onClick={fetchRestaurantOrders}
+          onClick={refetch}
           className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
         >
           🔄 Yenile
@@ -173,7 +133,7 @@ export default function RestaurantDashboard() {
                 {order.status === 'PENDING' && (
                   <button
                     onClick={() =>
-                      handleStatusUpdate(order.orderId, 'PREPARING')
+                      updateOrderStatus(order.orderId, 'PREPARING')
                     }
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors shadow-sm"
                   >
@@ -184,7 +144,7 @@ export default function RestaurantDashboard() {
                 {order.status === 'PREPARING' && (
                   <button
                     onClick={() =>
-                      handleStatusUpdate(order.orderId, 'ON_THE_WAY')
+                      updateOrderStatus(order.orderId, 'ON_THE_WAY')
                     }
                     className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors shadow-sm"
                   >
@@ -195,14 +155,13 @@ export default function RestaurantDashboard() {
                 {order.status === 'ON_THE_WAY' && (
                   <button
                     onClick={() =>
-                      handleStatusUpdate(order.orderId, 'DELIVERED')
+                      updateOrderStatus(order.orderId, 'DELIVERED')
                     }
                     className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors shadow-sm"
                   >
                     ✅ Teslim Edildi
                   </button>
                 )}
-
                 {/* Sipariş iptal */}
                 {['PENDING', 'PREPARING'].includes(order.status) && (
                   <button
