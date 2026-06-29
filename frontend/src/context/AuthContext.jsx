@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
       const backendUser = response.data;
       const userData = {
         id: backendUser.id,
-        username: backendUser.username,
+        name: backendUser.name,
         email: backendUser.email,
         role: backendUser.roles?.[0],
       };
@@ -68,18 +68,8 @@ export function AuthProvider({ children }) {
       const { token } = response.data;
 
       localStorage.setItem('token', token);
-
-      const decoded = jwtDecode(token);
-
-      const userData = {
-        id: decoded.id,
-        email: decoded.sub,
-        role: decoded.role?.[0],
-      };
-
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      await fetchCurrentUser(token);
 
       router.push('/');
       return { success: true };

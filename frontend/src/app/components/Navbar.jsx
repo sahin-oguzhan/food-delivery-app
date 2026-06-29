@@ -30,41 +30,71 @@ export default function Navbar() {
             </div>
 
             {/* Sağ Taraf: Menüler ve Sepet */}
-            <div className="flex items-center gap-6">
-              {/* Sepet Butonu */}
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-2 text-gray-600 hover:text-red-600 transition-colors cursor-pointer"
-              >
-                <span className="text-2xl">🛒</span>
-                {/* Ürün Sayısı */}
-                {cartItemCount > 0 && (
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
-                    {cartItemCount}
+            <div className="flex items-center gap-4">
+              {/* SEPET BUTONU*/}
+              {(!user || user.role !== 'OWNER') && (
+                <button
+                  onClick={() => setIsCartOpen(true)}
+                  className="relative p-2 text-gray-600 hover:text-red-600 transition-colors flex items-center gap-1 bg-gray-50 rounded-xl px-3 py-2"
+                >
+                  <span>🛒</span>
+                  <span className="text-sm font-semibold hidden md:inline">
+                    Sepetim
                   </span>
-                )}
-              </button>
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </button>
+              )}
 
-              {/* Kullanıcı Menüsü */}
               {user ? (
-                <div className="flex items-center gap-4">
-                  <span className="text-sm font-medium text-gray-700">
-                    Merhaba, {user.email.split('@')[0]}
+                <>
+                  {user.role === 'ROLE_OWNER' && (
+                    <Link
+                      href="/restaurant/dashboard"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl text-sm transition-colors shadow-sm flex items-center gap-2"
+                    >
+                      📊 Restoran Paneli
+                    </Link>
+                  )}
+                  {user.role === 'ROLE_CUSTOMER' && (
+                    <Link
+                      href="/orders"
+                      className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2"
+                    >
+                      🛍️ Siparişlerim
+                    </Link>
+                  )}
+
+                  {/* Profil Bilgisi ve Çıkış Butonu */}
+                  <div className="h-4 w-px bg-gray-300" />
+                  <span className="text-sm font-medium text-gray-600 hidden md:inline">
+                    Merhaba👋 {user.name}
                   </span>
                   <button
                     onClick={logout}
-                    className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                    className="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors"
                   >
                     Çıkış Yap
                   </button>
-                </div>
+                </>
               ) : (
-                <Link
-                  href="/login"
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-                >
-                  Giriş Yap
-                </Link>
+                <>
+                  <Link
+                    href="/login"
+                    className="text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
+                  >
+                    Giriş Yap
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-xl text-sm transition-colors shadow-sm"
+                  >
+                    Kaydol
+                  </Link>
+                </>
               )}
             </div>
           </div>
