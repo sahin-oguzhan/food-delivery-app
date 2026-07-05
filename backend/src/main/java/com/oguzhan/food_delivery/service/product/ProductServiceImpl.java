@@ -30,7 +30,6 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final CurrentUserService currentUserService;
-    private final RestaurantRepository restaurantRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
     private final ImageUploadService imageUploadService;
@@ -50,6 +49,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "restaurant_products", key = "#result.restaurantId")
     public ProductResponse createProduct(ProductRequest productRequest, MultipartFile image) {
         Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
@@ -84,6 +84,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
+    @CacheEvict(value = "restaurant_products", key = "#result.restaurantId")
     public ProductResponse updateProduct(Long productId, ProductUpdateRequest productUpdateRequest) {
         Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
 
@@ -112,6 +113,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
+    @CacheEvict(value = "restaurant_products", key = "#restaurant.id")
     public void deleteProduct(Long productId) {
         Restaurant restaurant = currentUserService.getCurrentUserRestaurant();
         Product product = productRepository.findById(productId)
