@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class RateLimitingInterceptor implements HandlerInterceptor {
     private final StringRedisTemplate redisTemplate;
     private static final String RATE_LIMIT_PREFIX = "rateLimit::";
-    private static final int MAX_REQUESTS_PER_MINUTE = 20;
+    private static final int MAX_REQUESTS_PER_MINUTE = 200;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
