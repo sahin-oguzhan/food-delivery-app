@@ -5,6 +5,7 @@ import com.oguzhan.food_delivery.dto.user.LoginRequestDto;
 import com.oguzhan.food_delivery.dto.user.RegisterRequestDto;
 import com.oguzhan.food_delivery.dto.user.UserResponseDTO;
 import com.oguzhan.food_delivery.entity.User;
+import com.oguzhan.food_delivery.mapper.user.UserMapper;
 import com.oguzhan.food_delivery.security.CurrentUserService;
 import com.oguzhan.food_delivery.security.JwtService;
 import com.oguzhan.food_delivery.service.auth.AuthenticationService;
@@ -23,23 +24,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService authenticationService;
-    private final JwtService jwtService;
     private final CurrentUserService currentUserService;
+    private final UserMapper userMapper;
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDTO> getCurrentUser(@RequestHeader("Authorization") String token) {
         User user = currentUserService.getCurrentUser();
 
-        List<String> roles = user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-
-        UserResponseDTO userResponseDTO = new UserResponseDTO(
-                user.getId(),
-                user.getFirstName() + " " +  user.getLastName(),
-                user.getEmail(),
-                roles
-        );
+        UserResponseDTO userResponseDTO = userMapper.toResponse(user);
 
         return ResponseEntity.ok(userResponseDTO);
     }
