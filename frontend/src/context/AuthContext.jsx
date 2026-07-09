@@ -18,11 +18,13 @@ export function AuthProvider({ children }) {
       const response = await api.get(`/auth/me`);
 
       const backendUser = response.data;
+
       const userData = {
         id: backendUser.id,
         name: backendUser.name,
         email: backendUser.email,
         role: backendUser.roles?.[0],
+        restaurantId: backendUser.restaurantId,
       };
 
       setUser(userData);
